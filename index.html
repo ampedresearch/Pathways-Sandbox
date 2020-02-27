@@ -1,0 +1,21 @@
+<html>
+	<head>
+		<link rel="stylesheet" type="text/css" href="site.css">
+	    <script src="../libraries/p5.js" type="text/javascript"></script>
+	    <script src="../libraries/p5.dom.js" type="text/javascript"></script>
+
+	    <script src="sketch.js" type="text/javascript"></script>
+	    <script src="dancer.js" type="text/javascript"></script>
+  	</head>
+
+  	<body>	
+  		<h1>pathways generator</h1>
+  		<button onClick='changeState("CIRCULAR")'>circular (O)</button>
+  		<button onClick='changeState("LINEAR")'>linear (L)</button>
+  		<button>random!(Z)</button>
+  		<!-- have different sliders appear for different state selections -->
+  		<!-- toggle with display: none; between states -->
+  		<h3 id='slider-value'>radius : 5</h3>
+  		<input onInput="updateSliderVal()" type="range" name="radius" min="1" max="10" value="5" class="slider" id="slider">
+	</body>
+</html>

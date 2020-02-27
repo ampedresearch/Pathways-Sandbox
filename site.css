@@ -1,0 +1,31 @@
+body{
+	font-family: Sans-Serif;
+	justify-content: center;
+	align-items: center;
+}
+
+button {
+	background: #ffa321;
+	padding: 15px;
+	text-align: center;
+	border: none;
+	border-radius: 5px;
+	color: white;
+	font-size: 15pt;
+}
+
+.slider {
+	-webkit-appearance: none;
+	background: #ffa321;
+	height: 15px;
+	border-radius: 5px;
+}
+
+.slider::-webkit-slider-thumb {
+	-webkit-appearance: none;
+  width: 25px;
+  height: 25px;
+  background: grey;
+  border-radius: 50%; 
+  cursor: pointer;
+}
