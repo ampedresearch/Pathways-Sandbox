@@ -64,7 +64,7 @@ class Dancer {
 		this.pos.x = this.center.x + this.radius * cos(this.angle);
 		this.pos.y = this.center.y + this.radius * sin(this.angle);
 		// this.facing.x = -50 * cos(this.angle);
-		// this.facing.y = -50 * sin(this.angle);
+		// this.facing.y = -50 * sin(this.angle); 
 		// this.facing.x = -50 * cos(this.angle);
 		// this.facing.y = -50 * sin(this.angle);
 		// backwards
