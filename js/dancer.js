@@ -4,8 +4,6 @@ class Dancer {
 		this.pos = createVector(width/2,height/2);
 		this.arrowhead = createVector(0,1);
 		this.pathway;
-		this.lineStartPos;
-		this.lineEndPos;
 		this.facing = "FORWARD";
 		this.arrowlength = 50;
 
@@ -22,6 +20,9 @@ class Dancer {
 		// linear vars
 		this.lineDirection = 0; // angle with horizontal
 		this.velocity = createVector(1,0);
+		this.lineStartPos;
+		this.lineEndPos;
+
 	}
 
 
@@ -36,8 +37,8 @@ class Dancer {
 			this.updateCircular();
 		} else if (this.pathway == "LINEAR"){
 			stroke(255);
-			this.lineStartPos = createVector(width/2 - this.radius,height/2);
-			this.lineEndPos = createVector(width/2 + this.radius,height/2);
+			this.lineStartPos = createVector(parseFloat(width/2) - parseFloat(this.radius),height/2);
+			this.lineEndPos = createVector(parseFloat(width/2) + parseFloat(this.radius), height/2);
 			line(this.lineStartPos.x,this.lineStartPos.y,this.lineEndPos.x,this.lineEndPos.y);
 			fill(0);
 			noStroke();
@@ -46,7 +47,6 @@ class Dancer {
 			// this.pos.x = this.startPos.x;
 			// this.pos.y = this.startPos.y;
 			//
-
 			this.updateLinear();
 		}
 
@@ -76,6 +76,9 @@ class Dancer {
 
 	updateSpeed(value){
 		this.speed = value;
+		this.velocity.x = this.speed*cos(this.lineDirection);
+		this.velocity.y = this.speed*sin(this.lineDirection);
+
 	}
 
 
@@ -116,22 +119,14 @@ class Dancer {
 		// calculate velocity as vector between start / end positions
 		// temp hard-coded values of velocity
 
-		this.velocity.x = this.speed*cos(this.lineDirection);
-		this.velocity.y = this.speed*sin(this.lineDirection);
-		this.pos.x += this.velocity.x; // 1
-		this.pos.y += this.velocity.y; // 0
-
-
-
 		//
 		if(this.pos.x > this.lineEndPos.x | this.pos.x < this.lineStartPos.x ){ //if at end
 			this.velocity.x = -this.velocity.x;
 			this.velocity.y = -this.velocity.y;
-		} 
-		// if end pos is X vector distance for start pos
-		//end movement
+		}
 
-
+		this.pos.x += this.velocity.x; // 1
+		this.pos.y += this.velocity.y; // 0
 
 	}
 
