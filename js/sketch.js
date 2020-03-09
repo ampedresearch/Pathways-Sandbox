@@ -8,7 +8,7 @@ let slider;
 
 function setup(){
 	let myCanvas = createCanvas(600,500);
-	myCanvas.position(500,00);
+	myCanvas.position(550,50);
 	background(255,100,100);
 
 	dancer = new Dancer();

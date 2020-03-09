@@ -19,7 +19,7 @@ class Dancer {
 
 		// linear vars
 		this.lineDirection = 0; // angle with horizontal
-		this.velocity = createVector(1,0);
+		this.velocity = createVector(1,1);
 		this.lineStartPos;
 		this.lineEndPos;
 
@@ -36,9 +36,13 @@ class Dancer {
 			// this.pos.y = this.center.y;
 			this.updateCircular();
 		} else if (this.pathway == "LINEAR"){
+
 			stroke(255);
+			strokeWeight(5);
 			this.lineStartPos = createVector(parseFloat(width/2) - parseFloat(this.radius),height/2);
 			this.lineEndPos = createVector(parseFloat(width/2) + parseFloat(this.radius), height/2);
+
+
 			line(this.lineStartPos.x,this.lineStartPos.y,this.lineEndPos.x,this.lineEndPos.y);
 			fill(0);
 			noStroke();
@@ -59,11 +63,16 @@ class Dancer {
 			this.pos.x = this.center.x - this.radius;
 			this.pos.y = this.center.y;
 		} else if (this.pathway == "LINEAR"){
-			this.lineStartPos = createVector(width/2 - this.radius,height/2);
-			this.lineEndPos = createVector(width/2 + this.radius,height/2);
-		this.pos.x = this.lineStartPos.x;
-		this.pos.y = this.lineStartPos.y;
-	}
+			this.lineStartPos = createVector(parseFloat(width/2) - parseFloat(this.radius),height/2);
+			this.lineEndPos = createVector(parseFloat(width/2) + parseFloat(this.radius), height/2);
+			this.lineDirection = atan2(this.lineStartPos.y - this.lineEndPos.y, this.lineStartPos.x - this.lineEndPos.x);
+
+			this.velocity.x = this.speed*cos(this.lineDirection);
+			this.velocity.y = this.speed*sin(this.lineDirection);
+
+			this.pos.x = this.lineStartPos.x;
+			this.pos.y = this.lineStartPos.y;
+		}
 	}
 
 	updateFacing(facing){
@@ -87,6 +96,7 @@ class Dancer {
 		this.pos.y = this.center.y + this.radius * sin(this.angle);
 
 
+
 		// facings
 		if (this.facing == "FORWARD") {
 			this.arrowhead.x = -this.arrowlength * sin(this.angle);
@@ -107,8 +117,11 @@ class Dancer {
 
 		// draw path below dancer
 		noFill();
-		stroke(255);
+		stroke(0);
+		strokeWeight(5);
 		ellipse(this.center.x, this.center.y, this.radius * 2);
+		strokeWeight(10);
+		stroke(255);
 		line(this.pos.x, this.pos.y,this.pos.x+this.arrowhead.x,this.pos.y+this.arrowhead.y)
 
 	}
@@ -128,10 +141,30 @@ class Dancer {
 		this.pos.x += this.velocity.x; // 1
 		this.pos.y += this.velocity.y; // 0
 
+
+		switch(this.facing) {
+			case 'FORWARD':
+				this.arrowhead.x = -this.arrowlength * cos(this.lineDirection);
+				this.arrowhead.y = -this.arrowlength * sin(this.lineDirection);
+				break;
+			case 'BACKWARD':
+				this.arrowhead.x = this.arrowlength * cos(this.lineDirection);
+				this.arrowhead.y = this.arrowlength * sin(this.lineDirection);
+				break;
+			case 'LEFT':
+				this.arrowhead.x = -this.arrowlength * cos(this.lineDirection);
+				this.arrowhead.y = this.arrowlength * sin(this.lineDirection);
+				break;
+			case 'RIGHT':
+				this.arrowhead.x = this.arrowlength * cos(this.lineDirection);
+				this.arrowhead.y = -this.arrowlength * sin(this.lineDirection);
+				break;
+		}
+
 		// draw facing here
 		strokeWeight(10);
 		stroke(0);
-		line(this.pos.x, this.pos.y,this.pos.x+this.facing.x,this.pos.y+this.facing.y)
+		line(this.pos.x, this.pos.y,this.pos.x+this.arrowhead.x,this.pos.y+this.arrowhead.y)
 	}
 
 	show(){
