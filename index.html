@@ -17,5 +17,13 @@
   		<!-- toggle with display: none; between states -->
   		<h3 id='slider-value'>radius : 5</h3>
   		<input onInput="updateSliderVal()" type="range" name="radius" min="1" max="10" value="5" class="slider" id="slider">
+
+      <h3>facings:</h3>
+      <button onClick='changeFacing("INWARD")' class="facing">facing inward</button>
+      <button onClick='changeFacing("OUTWARD")' class="facing">facing outward</button>
+      <br><br>
+      <button onClick='changeFacing("FORWARD")' class="facing">facing forward</button>
+      <button onClick='changeFacing("BACKWARD")' class="facing">facing backward</button>
+
 	</body>
 </html>

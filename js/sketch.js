@@ -8,7 +8,7 @@ let slider;
 
 function setup(){
 	let myCanvas = createCanvas(800,400);
-	myCanvas.position(50,250);
+	myCanvas.position(window.width/2,250);
 	background(255,100,100);
 
 	dancer = new Dancer();
@@ -35,4 +35,9 @@ function updateSliderVal(){
 
 	console.log('slider on ' + slider.value);
 	document.getElementById('slider-value').innerHTML = 'radius : ' + slider.value;
+}
+
+function changeFacing(state){
+	console.log('facing changed to:' + state);
+	dancer.updateFacing(state);
 }
