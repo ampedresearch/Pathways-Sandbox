@@ -1,4 +1,4 @@
-// Application for visualizing and customizing various 
+// Application for visualizing and customizing various
 // pathways and facings found within dance
 
 
@@ -7,12 +7,13 @@ let dancer;
 let slider;
 
 function setup(){
-	let myCanvas = createCanvas(800,400);
-	myCanvas.position(window.width/2,250);
+	let myCanvas = createCanvas(600,500);
+	myCanvas.position(500,00);
 	background(255,100,100);
 
 	dancer = new Dancer();
-	slider = document.getElementById('slider');
+	radiusSlider = document.getElementById('radius-slider');
+	speedSlider = document.getElementById('speed-slider');
 }
 
 function draw(){
@@ -22,22 +23,28 @@ function draw(){
 }
 
 // on button click
-function changeState(state){
-	console.log('state changed to:' + state);
-	slider.value = 5;
-	updateSliderVal();
-	dancer.updateState(state);
+function changePathway(pathway){
+	// console.log('pathway changed to:' + pathway);
+	updateRadiusVal();
+	dancer.updatePathway(pathway);
+}
+
+// on button click
+function changeFacing(facing){
+	// console.log('facing changed to:' + facing);
+	dancer.updateFacing(facing);
 }
 
 // on slider input
-function updateSliderVal(){
-	dancer.updateSlider(slider.value);
-
-	console.log('slider on ' + slider.value);
-	document.getElementById('slider-value').innerHTML = 'radius : ' + slider.value;
+function updateRadiusVal(){
+	dancer.updateRadius(radiusSlider.value);
+	// console.log('slider on ' + radiusSlider.value);
+	document.getElementById('radius-label').innerHTML = 'radius: ' + radiusSlider.value;
 }
 
-function changeFacing(state){
-	console.log('facing changed to:' + state);
-	dancer.updateFacing(state);
+// on slider input
+function updateSpeedVal(){
+	dancer.updateSpeed(speedSlider.value);
+	// console.log('slider on ' + speedSlider.value);
+	document.getElementById('speed-label').innerHTML = 'speed: ' + speedSlider.value;
 }
