@@ -2,10 +2,14 @@ class Dancer {
 	constructor(){
 		//position
 		this.pos = createVector(width/2,height/2);
-		this.arrowhead = createVector(0,1);
+		this.prevPos = createVector(0,0);
+		this.arrowhead = createVector(1,1);
 		this.pathway;
 		this.facing = "FORWARD";
 		this.arrowlength = 50;
+		this.normalized = createVector(1,1);
+
+		this.posArray = [];
 
 		//display
 		this.size = 25;
@@ -18,7 +22,7 @@ class Dancer {
 		this.center = createVector(width/2, height/2);
 
 		// linear vars
-		this.lineDirection = 0; // angle with horizontal
+		this.lineAngle = 0; // angle with horizontal
 		this.velocity = createVector(1,1);
 		this.lineStartPos;
 		this.lineEndPos;
@@ -31,30 +35,12 @@ class Dancer {
 			textSize(24);
 			text('select a pathway!', this.pos.x + this.size, this.pos.y);
 		} else if (this.pathway == "CIRCULAR"){
-			// this.radius = this.slider * 18;
-			// this.pos.x = this.center.x - this.radius;
-			// this.pos.y = this.center.y;
 			this.updateCircular();
 		} else if (this.pathway == "LINEAR"){
-
-			stroke(255);
-			strokeWeight(5);
-			this.lineStartPos = createVector(parseFloat(width/2) - parseFloat(this.radius),height/2);
-			this.lineEndPos = createVector(parseFloat(width/2) + parseFloat(this.radius), height/2);
-
-
-			line(this.lineStartPos.x,this.lineStartPos.y,this.lineEndPos.x,this.lineEndPos.y);
-			fill(0);
-			noStroke();
-			ellipse(this.lineStartPos.x,this.lineStartPos.y, 15, 15);
-			ellipse(this.lineEndPos.x,this.lineEndPos.y, 15, 15);
-			// this.pos.x = this.startPos.x;
-			// this.pos.y = this.startPos.y;
-			//
 			this.updateLinear();
 		}
 
-
+		this.updateFacingDirection(this.velocity.copy());
 	}
 
 	updatePathway(pathway){
@@ -65,10 +51,10 @@ class Dancer {
 		} else if (this.pathway == "LINEAR"){
 			this.lineStartPos = createVector(parseFloat(width/2) - parseFloat(this.radius),height/2);
 			this.lineEndPos = createVector(parseFloat(width/2) + parseFloat(this.radius), height/2);
-			this.lineDirection = atan2(this.lineStartPos.y - this.lineEndPos.y, this.lineStartPos.x - this.lineEndPos.x);
+			this.lineAngle = Math.atan2(this.lineEndPos.y - this.lineStartPos.y, this.lineEndPos.x - this.lineStartPos.x);
 
-			this.velocity.x = this.speed*cos(this.lineDirection);
-			this.velocity.y = this.speed*sin(this.lineDirection);
+			this.velocity.x = this.speed*cos(this.lineAngle);
+			this.velocity.y = this.speed*sin(this.lineAngle);
 
 			this.pos.x = this.lineStartPos.x;
 			this.pos.y = this.lineStartPos.y;
@@ -85,33 +71,43 @@ class Dancer {
 
 	updateSpeed(value){
 		this.speed = value;
-		this.velocity.x = this.speed*cos(this.lineDirection);
-		this.velocity.y = this.speed*sin(this.lineDirection);
+		this.velocity.x = this.speed*cos(this.lineAngle);
+		this.velocity.y = this.speed*sin(this.lineAngle);
 
+	}
+
+	updateFacingDirection(vel){
+		// calculate from velocity
+		this.normalized = vel.normalize().mult(this.arrowlength);
+
+		switch(this.facing){
+			case 'FORWARD':
+				this.arrowhead = this.normalized;
+				break;
+			case 'BACKWARD':
+				this.arrowhead = this.normalized.mult(-1);
+				break;
+			case 'LEFT':
+				this.arrowhead = createVector(this.normalized.y,-this.normalized.x);
+				break;
+			case 'RIGHT':
+				this.arrowhead = createVector(-this.normalized.y,this.normalized.x);
+				break;
+		}
+
+		// draw facing
+		strokeWeight(10);
+		stroke(0);
+		line(this.pos.x, this.pos.y,this.pos.x+this.arrowhead.x,this.pos.y+this.arrowhead.y);
 	}
 
 
 	updateCircular(){
+		this.prevPos.x = this.pos.x;
+		this.prevPos.y = this.pos.y;
+
 		this.pos.x = this.center.x + this.radius * cos(this.angle);
 		this.pos.y = this.center.y + this.radius * sin(this.angle);
-
-
-
-		// facings
-		if (this.facing == "FORWARD") {
-			this.arrowhead.x = -this.arrowlength * sin(this.angle);
-			this.arrowhead.y = this.arrowlength * cos(this.angle);
-		} else if (this.facing == "BACKWARD") {
-			this.arrowhead.x = this.arrowlength * sin(this.angle);
-			this.arrowhead.y = -this.arrowlength * cos(this.angle);
-		} else if (this.facing == "LEFT") {
-			this.arrowhead.x = this.arrowlength * cos(this.angle);
-			this.arrowhead.y = this.arrowlength * sin(this.angle);
-		} else if (this.facing == "RIGHT") {
-			this.arrowhead.x = -this.arrowlength * cos(this.angle);
-			this.arrowhead.y = -this.arrowlength * sin(this.angle);
-		}
-
 
 		this.angle = this.angle + this.speed/this.radius;
 
@@ -122,49 +118,32 @@ class Dancer {
 		ellipse(this.center.x, this.center.y, this.radius * 2);
 		strokeWeight(10);
 		stroke(255);
-		line(this.pos.x, this.pos.y,this.pos.x+this.arrowhead.x,this.pos.y+this.arrowhead.y)
 
+		// generate velocity
+		this.velocity = createVector(this.pos.x - this.prevPos.x, this.pos.y - this.prevPos.y);
 	}
 
 	updateLinear(){
+		// update start and end pos
+		this.lineStartPos = createVector(parseFloat(width/2) - parseFloat(this.radius),height/2);
+		this.lineEndPos = createVector(parseFloat(width/2) + parseFloat(this.radius), height/2);
 
-
-		// calculate velocity as vector between start / end positions
-		// temp hard-coded values of velocity
-
-		//
 		if(this.pos.x > this.lineEndPos.x | this.pos.x < this.lineStartPos.x ){ //if at end
-			this.velocity.x = -this.velocity.x;
-			this.velocity.y = -this.velocity.y;
+			this.velocity = this.velocity.mult(-1);
 		}
 
 		this.pos.x += this.velocity.x; // 1
 		this.pos.y += this.velocity.y; // 0
 
+		// draw line path under dancer
+		stroke(255);
+		strokeWeight(5);
+		line(this.lineStartPos.x,this.lineStartPos.y,this.lineEndPos.x,this.lineEndPos.y);
+		fill(0);
+		noStroke();
+		ellipse(this.lineStartPos.x,this.lineStartPos.y, 15, 15);
+		ellipse(this.lineEndPos.x,this.lineEndPos.y, 15, 15);
 
-		switch(this.facing) {
-			case 'FORWARD':
-				this.arrowhead.x = -this.arrowlength * cos(this.lineDirection);
-				this.arrowhead.y = -this.arrowlength * sin(this.lineDirection);
-				break;
-			case 'BACKWARD':
-				this.arrowhead.x = this.arrowlength * cos(this.lineDirection);
-				this.arrowhead.y = this.arrowlength * sin(this.lineDirection);
-				break;
-			case 'LEFT':
-				this.arrowhead.x = -this.arrowlength * cos(this.lineDirection);
-				this.arrowhead.y = this.arrowlength * sin(this.lineDirection);
-				break;
-			case 'RIGHT':
-				this.arrowhead.x = this.arrowlength * cos(this.lineDirection);
-				this.arrowhead.y = -this.arrowlength * sin(this.lineDirection);
-				break;
-		}
-
-		// draw facing here
-		strokeWeight(10);
-		stroke(0);
-		line(this.pos.x, this.pos.y,this.pos.x+this.arrowhead.x,this.pos.y+this.arrowhead.y)
 	}
 
 	show(){
@@ -174,3 +153,4 @@ class Dancer {
 	}
 
 }
+
