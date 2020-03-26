@@ -27,6 +27,7 @@ class Dancer {
 		this.lineStartPos;
 		this.lineEndPos;
 
+		this.frames = 0;
 	}
 
 
@@ -41,6 +42,7 @@ class Dancer {
 		}
 
 		this.updateFacingDirection(this.velocity.copy());
+		this.updateTrace();
 	}
 
 	updatePathway(pathway){
@@ -59,6 +61,8 @@ class Dancer {
 			this.pos.x = this.lineStartPos.x;
 			this.pos.y = this.lineStartPos.y;
 		}
+		// clear path
+		this.posArray = [];
 	}
 
 	updateFacing(facing){
@@ -144,6 +148,27 @@ class Dancer {
 		ellipse(this.lineStartPos.x,this.lineStartPos.y, 15, 15);
 		ellipse(this.lineEndPos.x,this.lineEndPos.y, 15, 15);
 
+	}
+
+	updateTrace(){
+		this.frames += 1;
+
+		// trace every X frames
+		if (this.frames >= 10){
+			this.posArray.push(this.pos.copy());
+			this.frames = 0;
+		}
+
+		if(this.posArray.length >= 10){
+			this.posArray.shift(); //only X length trace
+		}
+
+		// draw trace
+		for(var i = 0; i <= this.posArray.length -1 ; i++){
+			fill(0,0,250,90);
+			noStroke();
+			ellipse(this.posArray[i].x,this.posArray[i].y, 20, 20);
+		}
 	}
 
 	show(){
