@@ -29,6 +29,12 @@ function draw() {
     }
 }
 
+//onclick Button function
+//pause everything until reclicked=true
+//vector(mouse x , mouse y)
+//updateCenter(vector)
+//
+
 function setPathway(pathway, id){
     console.log(id);
     simDancers[id].setPathway(pathway);
@@ -112,7 +118,8 @@ function addDancer(){
         </div>
 
         <label for="${id}-center-target">Center:</label>
-        <select class="form-control target-select" id="${id}-center-target" onClick='handleCenterTargets(this, ${idNum})'>
+        <!-- button onClick="setCenter(${idNum},50,70)"-->
+        <select class="form-control target-select" id="${id}-center-target" onChange='handleCenterTargets(this, ${idNum})'>
             <option class="target-item" id='stage-center' value="STAGE">Stage</option>
             ${targets} 
         </select>
@@ -120,7 +127,7 @@ function addDancer(){
 
     <div class='facings form-group'>
         <label for="${id}-facing-target">Facing:</label>
-        <select class="form-control target-select" id="${id}-facing-target" onClick='handleFaceTargets(this, ${idNum})'>
+        <select class="form-control target-select" id="${id}-facing-target" onChange='handleFaceTargets(this, ${idNum})'>
             <option class="target-item" id="self-face" value="SELF">Self</option>
             <option class="target-item" id="stage-face" value="STAGE">Stage</option>
             ${targets} 
@@ -187,6 +194,9 @@ function setCenterTarget(idNum){
     let newCenter = createVector(parseFloat(target.history[0].x),parseFloat(target.history[0].y));
     simDancers[idNum].updateCenter(newCenter);
 }
+
+// function setCenterdednefnl(id,x,y)
+// updatecenter(id,x,y)
 
 function handlePauseButton(button, idNum){
     let state = button.checked;
