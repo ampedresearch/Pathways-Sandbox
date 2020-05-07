@@ -1,181 +1,225 @@
-class Dancer {
-	constructor(){
-		//position
-		this.pos = createVector(width/2,height/2);
-		this.prevPos = createVector(0,0);
-		this.arrowhead = createVector(1,1);
-		this.pathway;
-		this.facing = "FORWARD";
-		this.arrowlength = 50;
-		this.normalized = createVector(1,1);
+class Dot{
+	constructor(object){
+		this.pos = createVector(object.x, object.y);
+		this.history = [];
+		this.historySize = 80;
+		this.size = 15;
+		this.fill = object.fill;
 
-		this.posArray = [];
+		this.arrow;
+		this.arrowLength = 20;
 
-		//display
-		this.size = 25;
-		this.fill;
+		this.scale = 300;
+	}
 
-		//circular vars
-		this.radius = 50;
+	update(object){
+		this.updatePosition(object.pos);
+		this.updateArrow(object.facing);
+		// this.draw(); //seperate draw from update *******
+	}
+
+	updatePosition(pos){
+		// scale to scale value .. can make function to update with resize
+		let scaleX = map(pos.x, 0, 100, 0, this.scale);
+		let scaleY = map(pos.y, 0, 100, 0, this.scale);
+		let scalePos = createVector(scaleX,scaleY);
+		if(this.history.length >= this.historySize) this.history.pop();
+		this.history.unshift(scalePos);
+		// set current pos
+		this.pos.x = scalePos.x;
+		this.pos.y = scalePos.y;
+	}
+
+	updateArrow(arrow){
+		this.arrow = arrow;
+	}
+
+	updateTrace(trace){
+		// not working properly
+		this.historySize = trace;
+	}
+
+	drawTrace(){
+		// use history to draw trace
+		noStroke();
+		for(var i = 0; i <= this.history.length -1 ; i++){
+			fill(0,0,250,map(i,0,this.history.length, 50, 0));
+			ellipse(this.history[i].x,this.history[i].y, this.size/2, this.size/2);
+		}
+	}
+
+	drawArrow(){
+		strokeWeight(5);
+		stroke(0);
+		line(this.pos.x, this.pos.y, this.pos.x + this.arrow.x*this.arrowLength, this.pos.y + this.arrow.y*this.arrowLength);
+	}
+
+	draw(){
+		// scaling to canvas? with push/pop
+		push();
+		translate(width/2-this.scale/2,height/2-this.scale/2);
+		this.drawTrace();
+		this.drawArrow();
+
+		fill(this.fill);
+		strokeWeight(0);
+		ellipse(this.pos.x, this.pos.y, this.size, this.size);
+		pop();
+	}
+}
+
+
+class SimDancer{
+	constructor(pos, idNum){
+		this.pos = createVector(pos.x, pos.y); //might remove this?
+		this.history = [this.pos.copy()]; //do we need history for Dancer?
+		this.historySize = 10;
+
 		this.angle = 0;
 		this.speed = 1;
-		this.center = createVector(width/2, height/2);
 
-		// linear vars
-		this.lineAngle = 0; // angle with horizontal
-		this.velocity = createVector(1,1);
-		this.lineStartPos;
-		this.lineEndPos;
+		this.radius = 50; //holder value
+		this.center = createVector(50,50); //midway of 100-scale
 
-		this.frames = 0;
+		this.pathway; //both edited through html buttons
+		this.facing;
+		this.facingTarget = 'SELF';
+		this.centerTarget = 'STAGE'; //NOT implemented yet
+
+		this.facingTargetId;
+		this.centerTargetId;
+		this.targetPos = createVector(0,1);
+
+		this.id = idNum;
+		this.stopped = false;
+		this.dot = new Dot({x: this.pos.x, y: this.pos.y, fill: color(random(255),random(255),random(255))});
 	}
-
 
 	update(){
-		if(this.pathway == null){
-			textSize(24);
-			text('select a pathway!', this.pos.x + this.size, this.pos.y);
-		} else if (this.pathway == "CIRCULAR"){
-			this.updateCircular();
-		} else if (this.pathway == "LINEAR"){
-			this.updateLinear();
+		// update position and push to dot class
+		let newPos;
+		switch(this.pathway){
+			case 'CIRCULAR':
+				newPos = this.updateCircular();
+				break;
+			case 'LINEAR':
+				newPos = this.updateLinear();
+				break;
+			default:
+				newPos = createVector(50,50);
+				console.log('no pathway chosen');
 		}
-
-		this.updateFacingDirection(this.velocity.copy());
-		this.updateTrace();
+		
+		this.addPosition(newPos);
+		let newFace = this.updateFacing();
+		// push data to inner class
+		this.dot.update({pos: newPos, facing: newFace});
 	}
 
-	updatePathway(pathway){
-		this.pathway = pathway;
-		if (this.pathway == "CIRCULAR"){
-			this.pos.x = this.center.x - this.radius;
-			this.pos.y = this.center.y;
-		} else if (this.pathway == "LINEAR"){
-			this.lineStartPos = createVector(parseFloat(width/2) - parseFloat(this.radius),height/2);
-			this.lineEndPos = createVector(parseFloat(width/2) + parseFloat(this.radius), height/2);
-			this.lineAngle = Math.atan2(this.lineEndPos.y - this.lineStartPos.y, this.lineEndPos.x - this.lineStartPos.x);
-
-			this.velocity.x = this.speed*cos(this.lineAngle);
-			this.velocity.y = this.speed*sin(this.lineAngle);
-
-			this.pos.x = this.lineStartPos.x;
-			this.pos.y = this.lineStartPos.y;
-		}
-		// clear path
-		this.posArray = [];
+	draw(){
+		this.dot.draw();
 	}
-
-	updateFacing(facing){
-		this.facing = facing;
-	}
-
-	updateRadius(value){
-		this.radius = value;
-	}
-
-	updateSpeed(value){
-		this.speed = value;
-		this.velocity.x = this.speed*cos(this.lineAngle);
-		this.velocity.y = this.speed*sin(this.lineAngle);
-
-	}
-
-	updateFacingDirection(vel){
-		// calculate from velocity
-		this.normalized = vel.normalize().mult(this.arrowlength);
-
-		switch(this.facing){
-			case 'FORWARD':
-				this.arrowhead = this.normalized;
-				break;
-			case 'BACKWARD':
-				this.arrowhead = this.normalized.mult(-1);
-				break;
-			case 'LEFT':
-				this.arrowhead = createVector(this.normalized.y,-this.normalized.x);
-				break;
-			case 'RIGHT':
-				this.arrowhead = createVector(-this.normalized.y,this.normalized.x);
-				break;
-		}
-
-		// draw facing
-		strokeWeight(10);
-		stroke(0);
-		line(this.pos.x, this.pos.y,this.pos.x+this.arrowhead.x,this.pos.y+this.arrowhead.y);
-	}
-
 
 	updateCircular(){
-		this.prevPos.x = this.pos.x;
-		this.prevPos.y = this.pos.y;
+		// calculate NEXT position based current angle
+		let newPos = createVector(this.center.x + this.radius * cos(this.angle), this.center.y + this.radius * sin(this.angle)); 
+		this.angle += this.speed/this.radius; //should i edit this.angle in updateAngle()?
 
-		this.pos.x = this.center.x + this.radius * cos(this.angle);
-		this.pos.y = this.center.y + this.radius * sin(this.angle);
-
-		this.angle = this.angle + this.speed/this.radius;
-
-		// draw path below dancer
-		noFill();
-		stroke(0);
-		strokeWeight(5);
-		ellipse(this.center.x, this.center.y, this.radius * 2);
-		strokeWeight(10);
-		stroke(255);
-
-		// generate velocity
-		this.velocity = createVector(this.pos.x - this.prevPos.x, this.pos.y - this.prevPos.y);
+		return newPos;
 	}
 
 	updateLinear(){
-		// update start and end pos
-		this.lineStartPos = createVector(parseFloat(width/2) - parseFloat(this.radius),height/2);
-		this.lineEndPos = createVector(parseFloat(width/2) + parseFloat(this.radius), height/2);
+		// the position will be of X% of line length using cos of angle
+		let newPos = createVector(0,0);
+		let lineStart = createVector(this.center.x - this.radius, this.center.y);
+		let lineEnd = createVector(this.center.x + this.radius, this.center.y);
 
-		if(this.pos.x > this.lineEndPos.x | this.pos.x < this.lineStartPos.x ){ //if at end
-			this.velocity = this.velocity.mult(-1);
-		}
-
-		this.pos.x += this.velocity.x; // 1
-		this.pos.y += this.velocity.y; // 0
-
-		// draw line path under dancer
-		stroke(255);
-		strokeWeight(5);
-		line(this.lineStartPos.x,this.lineStartPos.y,this.lineEndPos.x,this.lineEndPos.y);
-		fill(0);
-		noStroke();
-		ellipse(this.lineStartPos.x,this.lineStartPos.y, 15, 15);
-		ellipse(this.lineEndPos.x,this.lineEndPos.y, 15, 15);
-
+		// use the cos of angle to map the position from -radius to radius from center
+		this.angle += this.speed/this.radius;
+		newPos.x = map(cos(this.angle), -1, 1, lineStart.x, lineEnd.x);
+		newPos.y = this.center.y;
+		
+		return newPos;
 	}
 
-	updateTrace(){
-		this.frames += 1;
+	updateFacing(){
+		// calculate facing from difference in position
+		let newFacing;
+		let normalized;
+		// normalized will change based on target
+		normalized = this.getNormalized(this.facingTarget);
 
-		// trace every X frames
-		if (this.frames >= 10){
-			this.posArray.push(this.pos.copy());
-			this.frames = 0;
+		switch(this.facing){
+			case 'FORWARD':
+				newFacing = normalized.copy();
+				break;
+			case 'LEFT':
+				newFacing = createVector(normalized.y, - normalized.x);
+				break;
+			case 'RIGHT':
+				newFacing = createVector(-normalized.y, normalized.x);
+				break;
+			case 'BACKWARD':
+				newFacing = normalized.mult(-1);
+				break;
+			default:
+				newFacing = normalized.copy();
 		}
-
-		if(this.posArray.length >= 10){
-			this.posArray.shift(); //only X length trace
-		}
-
-		// draw trace
-		for(var i = 0; i <= this.posArray.length -1 ; i++){
-			fill(0,0,250,90);
-			noStroke();
-			ellipse(this.posArray[i].x,this.posArray[i].y, 20, 20);
-		}
+		return newFacing;
 	}
 
-	show(){
-		noStroke();
-		fill(255);
-		ellipse(this.pos.x,this.pos.y, this.size, this.size);
+	getNormalized(type){
+		let normalized;
+		switch(type){
+			case 'SELF':
+				normalized = createVector(this.history[0].x-this.history[1].x, this.history[0].y-this.history[1].y).normalize();
+				break;
+			case 'STAGE':
+				normalized = createVector(0,1).normalize()
+				break;
+			default:
+				normalized = createVector(this.targetPos.x- this.history[0].x, this.targetPos.y - this.history[0].y).normalize();
+		}
+		return normalized;
 	}
 
+	addPosition(pos){ 
+		// add position to history
+		if(this.history.length >= this.historySize) this.history.pop();
+		this.history.unshift(pos);
+	}
+
+	updateCenter(newCenter){
+		let newVector = createVector(parseFloat(newCenter.x),parseFloat(newCenter.y));
+		this.center = newCenter;
+	}
+
+	updateScale(w,h){
+		this.dot.updateScale(w,h);
+	}
+
+	setPathway(pathway){
+		this.pathway = pathway;
+	}
+
+	setFacing(facing){
+		this.facing = facing;
+	}
+
+	setRadius(radius){
+		this.radius = parseInt(radius);
+	}
+
+	setSpeed(speed){
+		this.speed = map(parseInt(speed), 1, 50, 0.2 ,7);
+	}
+
+	setTrace(trace){
+		this.dot.updateTrace(parseInt(trace));
+	}
+
+	setStopState(state){
+		this.stopped = state;
+		console.log(`dancer ${this.id} is paused: ${state}`)
+	}
 }
-

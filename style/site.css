@@ -1,28 +1,31 @@
-body{
-	font-family: Sans-Serif;
-	justify-content: center;
-	align-items: center;
-}
+input[type=checkbox] {
+    padding-left:5px;
+    padding-right:5px;
+    border-radius:15px;
 
-button {
-	background: #ffa321;
-	padding: 15px;
-	text-align: center;
-	border: none;
-	border-radius: 5px;
-	color: white;
-	font-size: 15pt;
+    -webkit-appearance:button;
+
+    border: double 2px #00F;
+
+    background-color:#0b0095;
+    color:#FFF;
+    white-space: nowrap;
+    overflow:hidden;
+
+    width:15px;
+    height:15px;
 }
 
 .slider {
-	-webkit-appearance: none;
-	background: #ffa321;
-	height: 15px;
-	border-radius: 5px;
+  -webkit-appearance: none;
+  background: #ffa321;
+  height: 15px;
+  border-radius: 5px;
+  width:80%;
 }
 
 .slider::-webkit-slider-thumb {
-	-webkit-appearance: none;
+    -webkit-appearance: none;
   width: 25px;
   height: 25px;
   background: grey;
@@ -30,8 +33,52 @@ button {
   cursor: pointer;
 }
 
-.facing {
-	font-size: 12pt;
-	width: 120px;
-	background: #3376FF;
+label{
+  width: 100%;
 }
+
+.value{
+  padding-left: 10px;
+  width: 20%;
+}
+
+button {
+  padding: 5px;
+  border-radius: 10px;
+  border: none;
+  margin: 10px 0px 10px 0px;
+}
+
+#recordButton{
+/*  background-color: #5834eb;
+  color: white;*/
+}
+
+#addDancer button{
+  background-color: #f77816;
+  color: white;
+}
+
+.removeDancer{
+  background-color: #e03607;
+  color: white;
+}
+
+.pathwaysbtn label {
+  background-color: #e32289;
+  color: white;
+}
+
+.facings button{
+  background-color: #21bede; 
+  color: white;
+}
+
+.options {
+  margin-bottom: 25px;
+}
+
+.about {
+  margin-top: 50px;
+}
+
